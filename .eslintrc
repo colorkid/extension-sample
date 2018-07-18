@@ -1,0 +1,75 @@
+{
+    "extends": [
+        "eslint:recommended"
+    ],
+    "env": {
+        "browser": true,
+        "commonjs": true,
+        "es6": true,
+        "webextensions": true,
+        "node": true
+    },
+    "settings": {
+        "import/resolver": {
+            "webpack": {
+                "config": "webpack.config.js"
+            }
+        }
+    },
+    "parserOptions": {
+        "ecmaFeatures": {
+            "experimentalObjectRestSpread": true
+        },
+        "sourceType": "module"
+    },
+    "rules": {
+        "linebreak-style": "off",
+        "indent": [
+            "error",
+            2,
+            {
+                "SwitchCase": 1
+            }
+        ],
+        "template-curly-spacing": "off",
+        "import/no-nodejs-modules": "off",
+        "import/no-commonjs": "off",
+        "space-before-function-paren": "off",
+        "arrow-parens": "off",
+        "no-extra-parens": "off",
+        "comma-dangle": [
+            "error",
+            "never"
+        ],
+        "import/no-extraneous-dependencies": "off",
+        "class-methods-use-this": "off",
+        "newline-per-chained-call": "off",
+        "no-plusplus": "off",
+        "no-trailing-spaces": [
+            "error",
+            {
+                "skipBlankLines": true
+            }
+        ],
+        "no-shadow": "off",
+        "no-unresolved": "off",
+        "max-len": [
+            "error",
+            {
+                "code": 120
+            }
+        ],
+        "object-curly-newline": "off",
+        "function-paren-newline": "off",
+        "prefer-destructuring": "off",
+        "object-property-newline": "off",
+        "semi": [
+            "error",
+            "always"
+        ],
+        "sort-imports": "off",
+        "import/no-namespace": "off",
+        "import/extensions": "off",
+        "array-bracket-spacing": "off"
+    }
+}

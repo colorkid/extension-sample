@@ -1,0 +1,42 @@
+{
+  "name": "Test Extension",
+  "description": "Test Extension",
+  "author": "Actimind",
+  "version": "2.0.0",
+  "manifest_version": 2,
+  "background": {
+    "scripts": [
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content.js"
+      ]
+    }
+  ],
+  "browser_action": {
+    "default_icon": {
+      "48": "res/icon48.png",
+      "128": "res/icon128.png"
+    },
+    "default_title": "Test extension"
+  },
+  "icons": {
+    "48": "res/icon48.png",
+    "128": "res/icon128.png"
+  },
+  "permissions": [
+    "tabs",
+    "notifications",
+    "storage",
+    "<all_urls>"
+  ],
+  "web_accessible_resources": []
+}

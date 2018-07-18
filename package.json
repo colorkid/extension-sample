@@ -1,0 +1,28 @@
+{
+  "name": "extension-boilerplate",
+  "version": "2.0.0",
+  "description": "basic extension boilerplate",
+  "scripts": {
+    "dev": "webpack  --config webpack.config.js --mode development --watch --devtool",
+    "build": "npm run lint && webpack  --config webpack.config.js --mode production",
+    "lint": "node_modules/.bin/eslint src"
+  },
+  "author": "Actimind",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "^6.26.3",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "copy-webpack-plugin": "^4.5.2",
+    "css-loader": "^1.0.0",
+    "file-loader": "^1.1.11",
+    "style-loader": "^0.21.0",
+    "webpack": "^4.16.1",
+    "webpack-command": "^0.4.1"
+  },
+  "dependencies": {
+    "eslint": "^5.1.0",
+    "eslint-config-recommended": "^3.0.0"
+  }
+}

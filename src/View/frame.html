@@ -1,0 +1,31 @@
+ <!DOCTYPE html>
+  <html>
+    <head>
+      <link href="style.css" rel="stylesheet" type="text/css">
+      <script type="module" src="View.js"></script>
+    </head>
+    <body>
+      <div class="extension">
+        <div class="close" id="close"><svg class="close__icon" xmlns="http://www.w3.org/2000/svg" width="100%" height="100%" viewBox="0 0 18 18"><path fill="#757575" d="M9 1C4.58 1 1 4.58 1 9s3.58 8 8 8 8-3.58 8-8-3.58-8-8-8zm4 10.87L11.87 13 9 10.13 6.13 13  5 11.87 7.87 9 5 6.13 6.13 5 9 7.87 11.87 5 13 6.13 10.13 9 13 11.87z"/></svg>
+        </div>
+        <div class="extension__header">
+          <button class="extension__button extension__button--download" id="download">Download all</button>
+          <div class="rows-number">
+            <span class="rows-number__txt">Rows:</span>
+            <input type="number" id="number-src" min="0" class="extension__input extension__input--number">
+          </div>
+        </div>
+        <div class="result-table">
+          <div class="result-table__row result-table__row--header">
+            <div class="result-table__cell result-table__cell--header">Name</div>
+            <div class="result-table__cell result-table__cell--header">Scale pic(Px)</div>
+            <div class="result-table__cell result-table__cell--header">Size file(Kb)</div>
+          </div>
+          <div class="result-table__result">
+            <div class="preloader"></div>
+          </div>
+        </div>
+      </div>
+    </body>
+  </html>
+

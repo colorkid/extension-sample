@@ -1,10 +1,13 @@
 const path = require('path');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+
 
 module.exports = {
   entry: {
-    background: './src/background.js',
-    content: './src/content.js'
+    background: './src/Background/background.js',
+    content: './src/Content/content.js',
+    View: './src/View/View.js'
   },
   output: {
     path: path.resolve(__dirname, "build"),
@@ -18,7 +21,17 @@ module.exports = {
   },
   plugins: [
     new CopyWebpackPlugin([
-      { from: 'src/manifest.json' }
+      { from: 'src/manifest.json' },
+      {
+        from: './src/res',
+        to: './res'
+      },
+      {
+        from: './src/fonts',
+        to: './fonts'
+      },
+      { from: './src/View/frame.html' },
+      { from: './src/View/style.css' }
     ])
   ],
   devtool: "source-map",

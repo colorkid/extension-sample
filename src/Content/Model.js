@@ -1,19 +1,21 @@
-import LinksCreator from './LinksCreator.js'
+import SendSizes from './SendSizes.js'
+import Storage from './Storage.js'
 import TypeSort from './TypeSort.js'
 import FromHightToLowTypeSort from './FromHightToLowTypeSort.js'
 
 export default class Model {
 
 	constructor(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES) {
-		this.hostProtocol = window.location.protocol;
-		this.hostName = window.location.hostname;
+		this.storage = new Storage();
+		this.sendSizes = new SendSizes();
+		this.linksArray = this.sendSizes.createValidLink();
 		this.numberFiles = DEFAULT_NUMBER_FILES;
 		this.defineTypeSort(DEFAULT_TYPE_SORT);
 		this.initModel();
 	}
 
 	initModel() {
-		if (this.getUniqueSrcs().size !== 0) {
+		if (this.sendSizes.getNumberImgsOnPage().size !== 0) {
 			this.mergeUrlSizeScale();
 		} else {
 			this.setEmptyArrayFiles();
@@ -33,14 +35,13 @@ export default class Model {
 	}
 
 	mergeUrlSizeScale() {
-		let createdValidLinkArr = this.createValidLink();
 		let arrayUrlSizeScale = [];
 		let countIteration = 0; 
-		for (let i = 0; i < createdValidLinkArr.length; i++) {
-			Promise.all([this.findSizeFiles(createdValidLinkArr[i]), this.findScalePic(createdValidLinkArr[i])])
+		for (let i = 0; i < this.linksArray.length; i++) {
+			Promise.all([this.sendSizes.findSizeFiles(this.linksArray[i]), this.sendSizes.findScalePic(this.linksArray[i])])
 				.then((results) => {
 					countIteration++;
-					arrayUrlSizeScale.push([createdValidLinkArr[i],results[0],results[1]]);
+					arrayUrlSizeScale.push([this.linksArray[i],results[0],results[1]]);
 					if (arrayUrlSizeScale.length === countIteration) {
 						this.setReadyArr(arrayUrlSizeScale);
 					}
@@ -59,74 +60,12 @@ export default class Model {
 		return arrayFromStorage;
 	}
 
-	findSizeFiles(item) {
-		return new Promise(function(resolve, reject) {			
-			let xhr = new XMLHttpRequest();
-			xhr.open('GET', item, true);
-			xhr.send();
-			xhr.onreadystatechange = () => {
-				if (xhr.readyState === 4) {
-					if (xhr.status === 200) {
-						if (item.indexOf("data:image/gif;base64,") === -1) {
-						    resolve(xhr.getResponseHeader('Content-Length'));
-						} else {
-						    let base64str = item.substr(item.indexOf('data:image/gif;base64,')).substr(22);
-						    resolve(atob(base64str).length);
-						}
-					} else {
-						resolve("error");
-					}
-				}
-			};
-			
-		});	
-	}
-
-	findScalePic(item) {
-		return new Promise(function(resolve) {
-			let img = document.createElement("img");
-  			img.src = item;
-  			try {
-	  			img.onload = () => {
-		  			resolve(img.width * img.height);
-		  		}
-		  	} catch (err) {
-		  		resolve("error");
-		  	}
-		});
-	}
-
-	createValidLink() {
-		let collectLinksArr = this.createSrcsArray();
-		return collectLinksArr.map((item) => {
-			let linksCreator = new LinksCreator(item);
-			return linksCreator.getLink(item, this.hostProtocol, this.hostName);
-		});
-	}
-
-	createSrcsArray() {
-		let srcsSet = this.getUniqueSrcs();
-	    let srcsArray = [];
-	    srcsSet.forEach((item) => {
-	    	srcsArray.push(item);
-	    });
-	    return srcsArray;
-  	}
-
-  	defineTypeSort(codeSort) {
+	defineTypeSort(codeSort) {
 		if (codeSort === 1) {
 			this.sortState = new FromHightToLowTypeSort().getTypeSort;
 		} else {
 			this.sortState = new TypeSort().getTypeSort;
 		}
-	}
-
-	getUniqueSrcs() {
-	    let srcsSet = new Set();
-	    document.querySelectorAll("img").forEach((item) => {
-	        srcsSet.add(item.getAttribute("src"));
-	    });
-	    return srcsSet;
 	}
 
 	getNumberFiles() {
@@ -138,29 +77,23 @@ export default class Model {
 	}
 
 	setNumberFilesToStorage(number) {
-      	chrome.storage.sync.set({number_storage: number}, function() {});
+		this.storage.setNumberFilesToStorage(number);
       	this.setNumberFiles(number);
     }
 
     getNumberLinksFromStorage() {
     	return new Promise((resolve, reject) => {
-        	chrome.storage.sync.get("number_storage", (data) => {
-            	if (data.number_storage == undefined) {
-                	resolve(this.numberFiles);
-              	} else {
-                	resolve(data.number_storage);
-              	}
-          	});
-      	});
+    		this.storage.getNumberLinksFromStorage().then((result) => {
+	    		if (result == undefined) {
+	                resolve(this.numberFiles);
+	            } else {
+	                resolve(result);
+	            }
+    		});
+    	});	
     }
 
     getNumberDownload() {
     	return this.getNumberFiles() > this.getReadyArr().length ? this.getReadyArr().length : this.getNumberFiles();
-    }
-
-    downloadFiles() {
-    	for (let i = 0; i < this.getNumberDownload(); i++) {
-    		chrome.runtime.sendMessage({msg: "downloadFiles", url: this.getReadyArr()[i][0]}, function(response) {});
-    	}
     }
 }

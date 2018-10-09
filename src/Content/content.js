@@ -36,7 +36,7 @@ class Controller {
 					this.changeOnCountRowsField(event.data.numberFiles);
 					break;
 				case "clickOnDownloadButton":
-					this.model.downloadFiles();
+					this.downloadFiles();
 					break;
 				case "clickOnCloseButton":
 					this.closeExtension();
@@ -72,6 +72,12 @@ class Controller {
 		this.iframe.id = "downLoadImagesExtension";
 		this.iframe.style.cssText = 'border:none;position:fixed;top:0;left:0;right:0;bottom:0;margin:auto;display:flex;justify-content:center; align-items: center; width:100%;max-width:560px;height:90vh;z-index:99999999;';
 		document.body.appendChild(this.iframe);    
+	}
+
+	downloadFiles() {
+		for (let i = 0; i < this.model.getNumberDownload(); i++) {
+    		chrome.runtime.sendMessage({msg: "downloadFiles", url: this.model.getReadyArr()[i][0]}, function(){});
+    	}
 	}
 }
 

@@ -1,21 +1,19 @@
-import SendSizes from './SendSizes.js'
 import Storage from './Storage.js'
 import TypeSort from './TypeSort.js'
 import FromHightToLowTypeSort from './FromHightToLowTypeSort.js'
 
 export default class Model {
 
-	constructor(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES) {
+	constructor(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, sendSizes) {
 		this.storage = new Storage();
-		this.sendSizes = new SendSizes();
+		this.sendSizes = sendSizes;
 		this.linksArray = this.sendSizes.createValidLink();
 		this.numberFiles = DEFAULT_NUMBER_FILES;
 		this.defineTypeSort(DEFAULT_TYPE_SORT);
-		this.initModel();
 	}
 
 	initModel() {
-		if (this.sendSizes.getNumberImgsOnPage().size !== 0) {
+		if (this.sendSizes.getNumberImgsOnPage() !== 0) {
 			this.mergeUrlSizeScale();
 		} else {
 			this.setEmptyArrayFiles();
@@ -42,7 +40,7 @@ export default class Model {
 				.then((results) => {
 					countIteration++;
 					arrayUrlSizeScale.push([this.linksArray[i],results[0],results[1]]);
-					if (arrayUrlSizeScale.length === countIteration) {
+					if (this.linksArray.length === countIteration) {
 						this.setReadyArr(arrayUrlSizeScale);
 					}
 				})

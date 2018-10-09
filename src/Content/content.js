@@ -1,10 +1,13 @@
+import SendSizes from './SendSizes.js'
 import Model from './Model.js'
 
 class Controller {
 	
 	constructor(DEFAULT_NUMBER_FILES, DEFAULT_TYPE_SORT) {
 		if (window && window.top === window) {
-			this.model = new Model(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES);
+			this.sendSizes = new SendSizes();
+			this.model = new Model(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, this.sendSizes);
+			this.model.initModel();
 			this.startExtension();
 			this.listenerMessages();
 		}

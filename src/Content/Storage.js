@@ -5,7 +5,7 @@ export default class Storage {
 	}
 
 	getNumberLinksFromStorage() {
-    	return new Promise((resolve, reject) => {
+    	return new Promise((resolve) => {
         	chrome.storage.sync.get("number_storage", (data) => {
                 resolve(data.number_storage);
           	});

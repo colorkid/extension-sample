@@ -8,7 +8,7 @@ export default class SendSizes {
 	}
 
 	findSizeFiles(item) {
-		return new Promise(function(resolve, reject) {			
+		return new Promise(function(resolve) {			
 			let xhr = new XMLHttpRequest();
 			xhr.open('GET', item, true);
 			xhr.send();
@@ -52,6 +52,10 @@ export default class SendSizes {
 		});
 	}
 
+	getValidLinks() {
+		return this.createValidLink();
+	}
+
 	createSrcsArray(srcsSet) {
 	    let srcsArray = [];
 	    srcsSet.forEach((item) => {
@@ -60,10 +64,6 @@ export default class SendSizes {
 	    	}
 	    });
 	    return srcsArray;
-  	}
-
-  	getNumberImgsOnPage() {
-  		return this.getUniqueSrcs().size;
   	}
 
 	getUniqueSrcs() {

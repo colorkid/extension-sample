@@ -1,119 +1,137 @@
-import { assert } from 'chai'
+const sinon = require('sinon');
+import { assert } from 'chai';
 import Model from './Model.js'
 
-function CreateSendSizes(arr, getNumberImgsOnPage, findSizeFiles, findScalePic) {
-	this.createValidLink = function(arr) {
-		return arr;
-	};
-	this.getNumberImgsOnPage = function(getNumberImgsOnPage) {
-		if (getNumberImgsOnPage == false || getNumberImgsOnPage == undefined) {
-			return 0;
-		} else {
-			return getNumberImgsOnPage;
-		}
-	};
-	this.findSizeFiles = function(findSizeFiles) {
-		return new Promise(function(resolve, reject) {
-			resolve(findSizeFiles);
+const mockObjSendSizes = {
+	findSizeFiles() {
+		return new Promise((resolve) => {
+			resolve("5087")
 		});
-	};
-	this.findScalePic = function(findScalePic) {
-		return new Promise(function(resolve) {
-			resolve(findScalePic);
-		})
-	};
+	},
+	findScalePic() {
+		return new Promise((resolve) => {
+			resolve(21120)
+		});
+	},
+	getValidLinks() {
+		return [];
+	}
 }
 
-//Default data
-let createdValidLink = [
-	"https://s0.rbk.ru/v6_top_pics/resized/810x405_crop/media/img/2/62/755390238487622.jpeg",
-	"https://s0.rbk.ru/v6_top_pics/resized/810x405_crop/media/img/5/87/755390186653875.jpeg",
-	"https://s0.rbk.ru/v6_top_pics/resized/810x405_crop/media/img/6/09/755390673142096.jpg"
-];
+const mockObjStorage = {
+	setNumberFilesToStorage() {
+		return;
+	},
+	getNumberLinksFromStorage() {
+		return new Promise((resolve) => {
+			resolve("Hello promise")
+		});
+	}
+}
 
-let ss = new CreateSendSizes(createdValidLink, 3, "4684", 328050);
-
-describe("method initModel", function() {
-	it("initModel when page dont have img", function() {
-		let ss = new CreateSendSizes(createdValidLink, 0, "4684", 328050);
-		let md = new Model(1,7,ss);
-		md.initModel();
-		assert.equal(md.readyArr.length, 0);
-	});
-});
+let md = new Model(1, 5, mockObjSendSizes, mockObjStorage);
 
 describe("method setEmptyArrayFiles", function() {
 	it("setEmptyArrayFiles when the model did not yet have", function() {
-		let md = new Model(1,7,ss);
 		md.setEmptyArrayFiles();
 		assert.equal(md.readyArr.length, 0);
 	});
 	it("setEmptyArrayFiles when the model already had a readyArr", function() {
-		let md = new Model(1,7,ss);
-		md.readyArr = createdValidLink;
+		md.readyArr = [["1"], ["2"]];
 		md.setEmptyArrayFiles();
 		assert.equal(md.readyArr.length, 0);
 	});
 });
 
+describe("method createArrForRender", function() {
+	it("createArrForRender when page dont have imges", function() {
+		let spy = sinon.spy(md, "callEveryFile");
+		md.linksArray = [];
+		md.createArrForRender();
+		assert.isTrue(spy.notCalled);
+		spy.restore();
+	});
+	it("createArrForRender when page have some imges", function() {
+		let spy = sinon.spy(md, "callEveryFile");
+		md.linksArray = [1,2];
+		md.createArrForRender();
+		assert.isTrue(spy.called);
+		spy.restore();
+	});
+});
+
+describe("method setReadyArr", function() {
+	it("works when arrayUrlSizeScale.length > 1", function() {
+		md.setReadyArr([
+			["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "151", 209],
+		  	["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", "13504", 100096],
+		  	["https://www.gstatic.com/inputtools/images/tia.png", "5087", 21120]
+		]);
+		assert.isTrue(md.readyArr[0][2] === 100096);
+	});
+	it("works when arrayUrlSizeScale.length === 1", function() {
+		md.setReadyArr([["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120]]);
+		assert.isTrue(md.readyArr[0][2] === 21120);
+	});
+});
+
+describe("method getReadyArr", function() {
+	it("check on equality", function() {
+		md.readyArr = ["a",7,"b"];
+		assert.deepEqual(md.readyArr, md.getReadyArr());
+	});
+	it("if empty array", function() {
+		md.readyArr = [];
+		assert.isTrue(md.getReadyArr().length === 0);
+	});
+})
+
 describe("method editFormatSizeFile", function() {
-	it("works with arrConveSize.length > 1", function() {
-		let md = new Model(1,7,ss);
-		let arrConveSize = [
+	it("works with arrayUrlSizeScale.length > 1", function() {
+		let arrResult = md.editFormatSizeFile([
 			["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120],
 			["https://www.gstatic.com/inputtools/images/tia.png", "151", 209]
-		];
-		let arrResult = md.editFormatSizeFile(arrConveSize);
+		]);
 		assert.isTrue(arrResult[1][1] === 0.15 && arrResult[0][1] === 4.97);
 	});
-	it("works with arrConveSize.length === 1", function() {
-		let md = new Model(1,7,ss);
-		let arrConveSize = [
-			["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120]
-		];
-		let arrResult = md.editFormatSizeFile(arrConveSize);
+	it("works with arrayUrlSizeScale.length === 1", function() {
+		let arrResult = md.editFormatSizeFile([["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120]]);
 		assert.isTrue(arrResult[0][1] === 4.97);
 	});
 	it("works if before convert size is number", function() {
-		let md = new Model(1,7,ss);
-		let arrConveSize = [["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", 5087, 21120]];
-		let arrResult = md.editFormatSizeFile(arrConveSize);
+		let arrResult = md.editFormatSizeFile([["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", 5087, 21120]]);
 		assert.isTrue(arrResult[0][1] === 4.97);
+	});
+});
+
+describe("method defineTypeSort", function() {
+	it("works with code of not 1", function() {
+		md.defineTypeSort(2);
+		assert.deepEqual([[0,7],[0,2],[0,1],[0,77],[0,2],[0,531],[0,34],[0,9]].sort(md.sortState), [[0,1],[0,2],[0,2],[0,7],[0,9],[0,34],[0,77],[0,531]]);
+	});
+	it("works with code of 1", function() {
+		md.defineTypeSort(1);
+		assert.deepEqual([[0,0,7],[0,0,2],[0,0,1],[0,0,77],[0,0,2],[0,0,531],[0,0,34],[0,0,9]].sort(md.sortState), [[0,0,531],[0,0,77],[0,0,34],[0,0,9],[0,0,7],[0,0,2],[0,0,2],[0,0,1]]);
 	});
 });
 
 describe("method getNumberFiles", function() {
 	it("works with number", function() {
-		let md = new Model(1,99,ss);
+		md.numberFiles = 99;
 		assert.equal(md.getNumberFiles(), 99);
 	});
 	it("works with characters", function() {
-		let md = new Model(1,"99",ss);
+		md.numberFiles = "99";
 		assert.equal(md.getNumberFiles(), "99");
 	});
 });
 
 describe("method setNumberFiles", function() {
 	it("works with number", function() {
-		let md = new Model(1,9,ss);
 		md.setNumberFiles(122);
 		assert.equal(md.getNumberFiles(), 122);
 	});
 	it("works with characters", function() {
-		let md = new Model(1,9,ss);
-		md.setNumberFiles("122");
-		assert.equal(md.getNumberFiles(), "122");
-	});
-});
-
-describe("method setNumberFiles", function() {
-	it("works with number", function() {
-		let md = new Model(1,9,ss);
-		md.setNumberFiles(122);
-		assert.equal(md.getNumberFiles(), 122);
-	});
-	it("works with characters", function() {
-		let md = new Model(1,9,ss);
 		md.setNumberFiles("122");
 		assert.equal(md.getNumberFiles(), "122");
 	});
@@ -121,62 +139,100 @@ describe("method setNumberFiles", function() {
 
 describe("method getNumberDownload", function() {
 	it("works if numberFiles > readyArr.length", function() {
-		let md = new Model(1,3,ss);
-		let readyArrMoreNumberDownload = [1,2];
-		md.readyArr = readyArrMoreNumberDownload;
+		md.numberFiles = 7;
+		md.readyArr = [1,2];
 		assert.equal(md.getNumberDownload(), 2);
 	});
 	it("works if readyArr.length === 0", function() {
-		let md = new Model(1,3,ss);
-		md.setEmptyArrayFiles();
+		md.numberFiles = 3;
+		md.readyArr = [];
 		assert.equal(md.getNumberDownload(), 0);
 	});
 	it("works if readyArr.length > numberFiles", function() {
-		let md = new Model(1,3,ss);
-		let readyArrMoreNumberDownload = [1,2,3,4,5,6,7,8];
-		md.readyArr = readyArrMoreNumberDownload;
-		assert.equal(md.getNumberDownload(), 3);
+		md.numberFiles = 2;
+		md.readyArr = [1,2,3,4,5,6,7,8];
+		assert.equal(md.getNumberDownload(), 2);
 	});
 });
 
-describe("defineTypeSort", function() {
-	it("works with code of not 1", function() {
-		let md = new Model(1,9,ss);
-		md.defineTypeSort(2);
-		assert.deepEqual([[0,7],[0,2],[0,1],[0,77],[0,2],[0,531],[0,34],[0,9]].sort(md.sortState), [[0,1],[0,2],[0,2],[0,7],[0,9],[0,34],[0,77],[0,531]]);
+describe("method setNumberFilesToStorage", function() {
+	it("workw with number", function() {
+		md.setNumberFilesToStorage(7);
+		assert.isTrue(md.numberFiles === 7);
 	});
-	it("works with code of 1", function() {
-		let md = new Model(2,9,ss);
-		md.defineTypeSort(1);
-		assert.deepEqual([[0,0,7],[0,0,2],[0,0,1],[0,0,77],[0,0,2],[0,0,531],[0,0,34],[0,0,9]].sort(md.sortState), [[0,0,531],[0,0,77],[0,0,34],[0,0,9],[0,0,7],[0,0,2],[0,0,2],[0,0,1]]);
+	it("workw with characters", function() {
+		md.setNumberFilesToStorage("hello world");
+		assert.isTrue(md.numberFiles === "hello world");
 	});
 });
 
-describe("setReadyArr", function() {
-	it("works when arrForSetMethod.length > 1", function() {
-		let md = new Model(1,9,ss);
-		let arrForSetMethod = [
-			["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120],
-		  	["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_272x92dp.png", "13504", 100096],
-		  	["https://www.gstatic.com/inputtools/images/tia.png", "151", 209]
-		];
-		md.setReadyArr(arrForSetMethod);
-		assert.isTrue(md.readyArr[0][2] === 100096);
-	});
-
-	it("works when arrForSetMethod.length === 1", function() {
-		let md = new Model(1,9,ss);
-		let arrForSetMethod = [
-			["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120],
-		];
-		md.setReadyArr(arrForSetMethod);
-		assert.isTrue(md.readyArr[0][2] === 21120);
+describe("method getNumberLinksFromStorage", function() {
+	it("check on the correct return of the promise", function() {
+		md.getNumberLinksFromStorage().then((result) => {
+			assert.isTrue(result === "Hello promise");
+		});
 	});
 });
 
-describe("getReadyArr", function() {
-	it("check return", function() {
-		let md = new Model(1,9,ss);
-		assert.deepEqual(md.readyArr, md.getReadyArr());
+describe("method callEveryFile", function() {
+	it("works when linksArray > 1", function() {
+		md.linksArray = [1,2,3,4,5,6,7];
+		let spy = sinon.spy(md, "resolveSizes");
+		md.callEveryFile();
+		assert.isTrue(spy.callCount === 7);
+		spy.restore();
+	});
+	it("works when linksArray === 0", function() {
+		md.linksArray = [];
+		let spy = sinon.spy(md, "resolveSizes");
+		md.callEveryFile();
+		assert.isTrue(spy.notCalled);
+		spy.restore();
+	});
+	it("works when linksArray === 1", function() {
+		md.linksArray = [1];
+		let spy = sinon.spy(md, "resolveSizes");
+		md.callEveryFile();
+		assert.isTrue(spy.callCount === 1);
+		spy.restore();
+	});
+});
+
+describe("method resolveSizes", function() {
+	it("check on findSizeFiles resolve", function() {
+		let spy = sinon.spy(md.sendSizes, "findSizeFiles");
+		md.resolveSizes();
+		assert.isTrue(spy.called);
+		spy.restore();
+	});
+	it("check on findScalePic resolve", function() {
+		let spy = sinon.spy(md.sendSizes, "findScalePic");
+		md.resolveSizes();
+		assert.isTrue(spy.called);
+		spy.restore();
+	});
+});
+
+describe("method mergeUrlsSizesScales", function() {
+	it("works when count of pic is 1", function() {
+		md.arrayUrlSizeScale = [];
+		md.mergeUrlsSizesScales("https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120);
+		assert.deepEqual(md.arrayUrlSizeScale, [["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120]]);
+	});
+	it("works when count of pic is 0", function() {
+		md.arrayUrlSizeScale = [];
+		md.mergeUrlsSizesScales();
+		assert.deepEqual(md.arrayUrlSizeScale, [[undefined, undefined, undefined]]);
+	});
+	it("works when count of pic is more then 1", function() {
+		md.arrayUrlSizeScale = [];
+		md.mergeUrlsSizesScales("https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120);
+		md.mergeUrlsSizesScales("https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "1111", 222);
+		assert.deepEqual(md.arrayUrlSizeScale, [["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120],["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "1111", 222]]);
+	});
+		it("works with unusual arguments", function() {
+		md.arrayUrlSizeScale = [];
+		md.mergeUrlsSizesScales(222, null, "undefined");
+		assert.deepEqual(md.arrayUrlSizeScale, [[222, null, "undefined"]]);
 	});
 });

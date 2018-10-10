@@ -1,3 +1,4 @@
+import Storage from './Storage.js'
 import SendSizes from './SendSizes.js'
 import Model from './Model.js'
 
@@ -5,9 +6,9 @@ class Controller {
 	
 	constructor(DEFAULT_NUMBER_FILES, DEFAULT_TYPE_SORT) {
 		if (window && window.top === window) {
+			this.storage = new Storage();
 			this.sendSizes = new SendSizes();
-			this.model = new Model(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, this.sendSizes);
-			this.model.initModel();
+			this.model = new Model(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, this.sendSizes, this.storage);
 			this.startExtension();
 			this.listenerMessages();
 		}

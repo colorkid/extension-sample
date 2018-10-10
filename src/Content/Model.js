@@ -1,20 +1,20 @@
-import Storage from './Storage.js'
 import TypeSort from './TypeSort.js'
 import FromHightToLowTypeSort from './FromHightToLowTypeSort.js'
 
 export default class Model {
 
-	constructor(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, sendSizes) {
-		this.storage = new Storage();
+	constructor(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, sendSizes, storage) {
+		this.storage = storage;
 		this.sendSizes = sendSizes;
-		this.linksArray = this.sendSizes.createValidLink();
+		this.linksArray = this.sendSizes.getValidLinks();
 		this.numberFiles = DEFAULT_NUMBER_FILES;
 		this.defineTypeSort(DEFAULT_TYPE_SORT);
+		this.createArrForRender();
 	}
 
-	initModel() {
-		if (this.sendSizes.getNumberImgsOnPage() !== 0) {
-			this.mergeUrlSizeScale();
+	createArrForRender() {
+		if (this.linksArray.length !== 0) {
+			this.callEveryFile();
 		} else {
 			this.setEmptyArrayFiles();
 		}
@@ -32,19 +32,26 @@ export default class Model {
 		return this.readyArr;
 	}
 
-	mergeUrlSizeScale() {
-		let arrayUrlSizeScale = [];
-		let countIteration = 0; 
+	callEveryFile() {
+		this.arrayUrlSizeScale = [];
+		this.countIteration = 0;
 		for (let i = 0; i < this.linksArray.length; i++) {
-			Promise.all([this.sendSizes.findSizeFiles(this.linksArray[i]), this.sendSizes.findScalePic(this.linksArray[i])])
-				.then((results) => {
-					countIteration++;
-					arrayUrlSizeScale.push([this.linksArray[i],results[0],results[1]]);
-					if (this.linksArray.length === countIteration) {
-						this.setReadyArr(arrayUrlSizeScale);
-					}
-				})
+			this.resolveSizes(this.linksArray[i]);
 		}
+	}
+
+	resolveSizes(item) {
+		Promise.all([this.sendSizes.findSizeFiles(item), this.sendSizes.findScalePic(item)]).then((results) => {
+			this.countIteration++;
+			this.mergeUrlsSizesScales(item,results[0],results[1]);
+			if (this.linksArray.length === this.countIteration) {
+				this.setReadyArr(this.arrayUrlSizeScale);
+			}
+		})
+	}
+
+	mergeUrlsSizesScales(url,size,scale) {
+		this.arrayUrlSizeScale.push([url,size,scale]);
 	}
 
 	editFormatSizeFile(size) {
@@ -80,7 +87,7 @@ export default class Model {
     }
 
     getNumberLinksFromStorage() {
-    	return new Promise((resolve, reject) => {
+    	return new Promise((resolve) => {
     		this.storage.getNumberLinksFromStorage().then((result) => {
 	    		if (result == undefined) {
 	                resolve(this.numberFiles);

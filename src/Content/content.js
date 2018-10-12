@@ -6,9 +6,6 @@ class Controller {
 	
 	constructor(DEFAULT_NUMBER_FILES, DEFAULT_TYPE_SORT) {
 		if (window && window.top === window) {
-			this.storage = new Storage();
-			this.sendSizes = new SendSizes();
-			this.model = new Model(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, this.sendSizes, this.storage);
 			this.startExtension();
 			this.listenerMessages();
 		}
@@ -22,6 +19,9 @@ class Controller {
 					if (document.querySelector("#downLoadImagesExtension")) {
 						return;
 					} else {
+						this.storage = new Storage();
+						this.sendSizes = new SendSizes();
+						this.model = new Model(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, this.sendSizes, this.storage);
 						this.initFrame();
 						this.model.getNumberLinksFromStorage().then((numberFiles) => {
 							this.model.setNumberFiles(numberFiles);

@@ -5,6 +5,9 @@ export default class View {
 		this.resultTable = document.querySelector(".result-table__result");
 		this.inputNumber = document.querySelector(".extension__input");
 		this.inputNumber.addEventListener("input", function() {
+			if (this.value.length > 4) {
+        		this.value = this.value.slice(0,4); 
+    		}
 			window.parent.postMessage({message: "clickOnCountRowsField", numberFiles: this.value}, "*");
 		});
 		document.querySelector("#download").addEventListener("click", function() {

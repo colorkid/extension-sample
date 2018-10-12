@@ -26,7 +26,6 @@ body {
 	flex-wrap: wrap;
 	height: 100%;
     margin: 0;
-    border: 1px solid var(--secondary-text-color);
     border-radius: 2px;
     color: var(--primary-text-color);
     position: relative;
@@ -54,6 +53,8 @@ body {
 
 .extension {
 	width: 100%;
+	max-height: 100%;
+	min-height: 180px;
 	padding: 15px 30px 30px 30px;
 	border-radius: 0 0 2px 2px;
 	background-color: #fff;

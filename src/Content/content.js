@@ -58,6 +58,7 @@ class Controller {
 			numberDownload: this.model.getNumberDownload(),
 			readyArr: this.model.getReadyArr()
 		},"*");
+		this.changeIframeHeight(this.model.getNumberDownload());
 	}
 
 	changeOnCountRowsField(number) {
@@ -74,8 +75,15 @@ class Controller {
 		this.iframe = document.createElement('iframe');
 		this.iframe.src = chrome.runtime.getURL('frame.html');
 		this.iframe.id = "downLoadImagesExtension";
-		this.iframe.style.cssText = 'border:none;position:fixed;top:0;left:0;right:0;bottom:0;margin:auto;display:flex;justify-content:center; align-items: center; width:100%;max-width:560px;height:90vh;z-index:99999999;';
+		this.iframe.style.cssText = 'background-color:#fff;border: 1px solid #757575;position:fixed;top:5vh;left:0;right:0;margin:0 auto;min-height:285px;max-height:90vh;display:flex;justify-content:center; align-items: center; width:100%;max-width:560px;z-index:99999999;';
 		document.body.appendChild(this.iframe);    
+	}
+
+	changeIframeHeight(numberFiles) {
+		const iframeBodyHeight = 180;
+		const heightForItem = 35;
+		document.querySelector("#downLoadImagesExtension").style.minHeight = iframeBodyHeight + "px";
+		document.querySelector("#downLoadImagesExtension").style.height = (iframeBodyHeight + numberFiles * heightForItem) + "px";
 	}
 
 	downloadFiles() {

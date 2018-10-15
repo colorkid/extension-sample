@@ -4,7 +4,7 @@ import Model from './Model.js'
 
 class Controller {
 	
-	constructor(DEFAULT_NUMBER_FILES, DEFAULT_TYPE_SORT) {
+	constructor() {
 		if (window && window.top === window) {
 			this.startExtension();
 			this.listenerMessages();
@@ -19,9 +19,7 @@ class Controller {
 					if (document.querySelector("#downLoadImagesExtension")) {
 						return;
 					} else {
-						this.storage = new Storage();
-						this.sendSizes = new SendSizes();
-						this.model = new Model(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, this.sendSizes, this.storage);
+						this.model = new Model(new SendSizes(), new Storage());
 						this.initFrame();
 						this.model.getNumberLinksFromStorage().then((numberFiles) => {
 							this.model.setNumberFiles(numberFiles);
@@ -75,7 +73,21 @@ class Controller {
 		this.iframe = document.createElement('iframe');
 		this.iframe.src = chrome.runtime.getURL('frame.html');
 		this.iframe.id = "downLoadImagesExtension";
-		this.iframe.style.cssText = 'background-color:#fff;border: 1px solid #757575;position:fixed;top:5vh;left:0;right:0;margin:0 auto;min-height:285px;max-height:90vh;display:flex;justify-content:center; align-items: center; width:100%;max-width:560px;z-index:99999999;';
+		this.iframe.style.backgroundColor = "#fff";
+		this.iframe.style.border = "1px solid #757575";
+		this.iframe.style.position = "fixed";
+		this.iframe.style.top = "5vh";
+		this.iframe.style.left = "0";
+		this.iframe.style.right = "0";
+		this.iframe.style.margin = "0 auto";
+		this.iframe.style.minHeight = "285px";
+		this.iframe.style.maxHeight = "90vh";
+		this.iframe.style.display = "flex";
+		this.iframe.style.justifyContent = "center";
+		this.iframe.style.alignItems = "center";
+		this.iframe.style.width = "100%";
+		this.iframe.style.maxWidth = "560px";
+		this.iframe.style.zIndex = "99999999";
 		document.body.appendChild(this.iframe);    
 	}
 
@@ -88,11 +100,9 @@ class Controller {
 
 	downloadFiles() {
 		for (let i = 0; i < this.model.getNumberDownload(); i++) {
-    		chrome.runtime.sendMessage({msg: "downloadFiles", url: this.model.getReadyArr()[i][0]}, function(){});
+    		chrome.runtime.sendMessage({action: "downloadFiles", url: this.model.getReadyArr()[i][0]}, function(){});
     	}
 	}
 }
 
-const DEFAULT_TYPE_SORT = 1;
-const DEFAULT_NUMBER_FILES = 5;
-setTimeout(() => new Controller(DEFAULT_NUMBER_FILES, DEFAULT_TYPE_SORT), 1000);
+setTimeout(() => new Controller(), 1000);

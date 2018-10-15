@@ -3,7 +3,9 @@ import FromHightToLowTypeSort from './FromHightToLowTypeSort.js'
 
 export default class Model {
 
-	constructor(DEFAULT_TYPE_SORT, DEFAULT_NUMBER_FILES, sendSizes, storage) {
+	constructor(sendSizes, storage) {
+		const DEFAULT_NUMBER_FILES = 5;
+		const DEFAULT_TYPE_SORT = 1;
 		this.storage = storage;
 		this.sendSizes = sendSizes;
 		this.linksArray = this.sendSizes.getValidLinks();
@@ -41,7 +43,7 @@ export default class Model {
 	}
 
 	resolveSizes(item) {
-		Promise.all([this.sendSizes.findSizeFiles(item), this.sendSizes.findScalePic(item)]).then((results) => {
+		Promise.all([this.sendSizes.getSizeFiles(item), this.sendSizes.getScalePic(item)]).then((results) => {
 			this.countIteration++;
 			this.mergeUrlsSizesScales(item,results[0],results[1]);
 			if (this.linksArray.length === this.countIteration) {

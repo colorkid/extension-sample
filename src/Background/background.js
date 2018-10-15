@@ -6,7 +6,7 @@ chrome.browserAction.onClicked.addListener(() => {
 
 chrome.runtime.onMessage.addListener(
   	function(request, sender, sendResponse) {
-    	if (request.msg == "downloadFiles") {
+    	if (request.action == "downloadFiles") {
     		chrome.downloads.download({url:request.url});
     	}
   	});

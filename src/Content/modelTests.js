@@ -3,15 +3,11 @@ import { assert } from 'chai';
 import Model from './Model.js'
 
 const mockObjSendSizes = {
-	findSizeFiles() {
-		return new Promise((resolve) => {
-			resolve("5087")
-		});
+	getSizeFiles() {
+		sinon.stub().resolves("5087");
 	},
-	findScalePic() {
-		return new Promise((resolve) => {
-			resolve(21120)
-		});
+	getScalePic() {
+		sinon.stub().resolves(21120);
 	},
 	getValidLinks() {
 		return [];
@@ -29,9 +25,16 @@ const mockObjStorage = {
 	}
 }
 
-let md = new Model(1, 5, mockObjSendSizes, mockObjStorage);
+let md;
+
+function createModel() {
+	md = new Model(mockObjSendSizes, mockObjStorage);
+}
 
 describe("method setEmptyArrayFiles", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("setEmptyArrayFiles when the model did not yet have", function() {
 		md.setEmptyArrayFiles();
 		assert.equal(md.readyArr.length, 0);
@@ -44,6 +47,9 @@ describe("method setEmptyArrayFiles", function() {
 });
 
 describe("method createArrForRender", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("createArrForRender when page dont have imges", function() {
 		let spy = sinon.spy(md, "callEveryFile");
 		md.linksArray = [];
@@ -61,6 +67,9 @@ describe("method createArrForRender", function() {
 });
 
 describe("method setReadyArr", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("works when arrayUrlSizeScale.length > 1", function() {
 		md.setReadyArr([
 			["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "151", 209],
@@ -76,6 +85,9 @@ describe("method setReadyArr", function() {
 });
 
 describe("method getReadyArr", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("check on equality", function() {
 		md.readyArr = ["a",7,"b"];
 		assert.deepEqual(md.readyArr, md.getReadyArr());
@@ -87,6 +99,9 @@ describe("method getReadyArr", function() {
 })
 
 describe("method editFormatSizeFile", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("works with arrayUrlSizeScale.length > 1", function() {
 		let arrResult = md.editFormatSizeFile([
 			["https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120],
@@ -105,6 +120,9 @@ describe("method editFormatSizeFile", function() {
 });
 
 describe("method defineTypeSort", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("works with code of not 1", function() {
 		md.defineTypeSort(2);
 		assert.deepEqual([[0,7],[0,2],[0,1],[0,77],[0,2],[0,531],[0,34],[0,9]].sort(md.sortState), [[0,1],[0,2],[0,2],[0,7],[0,9],[0,34],[0,77],[0,531]]);
@@ -116,6 +134,9 @@ describe("method defineTypeSort", function() {
 });
 
 describe("method getNumberFiles", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("works with number", function() {
 		md.numberFiles = 99;
 		assert.equal(md.getNumberFiles(), 99);
@@ -127,6 +148,9 @@ describe("method getNumberFiles", function() {
 });
 
 describe("method setNumberFiles", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("works with number", function() {
 		md.setNumberFiles(122);
 		assert.equal(md.getNumberFiles(), 122);
@@ -138,6 +162,9 @@ describe("method setNumberFiles", function() {
 });
 
 describe("method getNumberDownload", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("works if numberFiles > readyArr.length", function() {
 		md.numberFiles = 7;
 		md.readyArr = [1,2];
@@ -156,6 +183,9 @@ describe("method getNumberDownload", function() {
 });
 
 describe("method setNumberFilesToStorage", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("workw with number", function() {
 		md.setNumberFilesToStorage(7);
 		assert.isTrue(md.numberFiles === 7);
@@ -167,6 +197,9 @@ describe("method setNumberFilesToStorage", function() {
 });
 
 describe("method getNumberLinksFromStorage", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("check on the correct return of the promise", function() {
 		md.getNumberLinksFromStorage().then((result) => {
 			assert.isTrue(result === "Hello promise");
@@ -175,6 +208,9 @@ describe("method getNumberLinksFromStorage", function() {
 });
 
 describe("method callEveryFile", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("works when linksArray > 1", function() {
 		md.linksArray = [1,2,3,4,5,6,7];
 		let spy = sinon.spy(md, "resolveSizes");
@@ -199,14 +235,19 @@ describe("method callEveryFile", function() {
 });
 
 describe("method resolveSizes", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("check on findSizeFiles resolve", function() {
-		let spy = sinon.spy(md.sendSizes, "findSizeFiles");
+		let spy = sinon.spy(md.sendSizes, "getSizeFiles");
+		md.arrayUrlSizeScale = [];
 		md.resolveSizes();
 		assert.isTrue(spy.called);
 		spy.restore();
 	});
 	it("check on findScalePic resolve", function() {
-		let spy = sinon.spy(md.sendSizes, "findScalePic");
+		let spy = sinon.spy(md.sendSizes, "getScalePic");
+		md.arrayUrlSizeScale = [];
 		md.resolveSizes();
 		assert.isTrue(spy.called);
 		spy.restore();
@@ -214,6 +255,9 @@ describe("method resolveSizes", function() {
 });
 
 describe("method mergeUrlsSizesScales", function() {
+	beforeEach(function(){
+		createModel();
+	});
 	it("works when count of pic is 1", function() {
 		md.arrayUrlSizeScale = [];
 		md.mergeUrlsSizesScales("https://www.google.ru//images/branding/googlelogo/2x/googlelogo_color_120x44dp.png", "5087", 21120);

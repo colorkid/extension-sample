@@ -1,4 +1,6 @@
 import LinksCreator from './LinksCreator.js'
+import WeightFindSize from './WeightFindSize.js'
+import ScaleFindSize from './ScaleFindSize.js'
 
 export default class SendSizes {
 
@@ -7,41 +9,12 @@ export default class SendSizes {
 		this.hostName = window.location.hostname;
 	}
 
-	findSizeFiles(item) {
-		return new Promise(function(resolve) {			
-			let xhr = new XMLHttpRequest();
-			xhr.open('GET', item, true);
-			xhr.send();
-			xhr.onreadystatechange = () => {
-				if (xhr.readyState === 4) {
-					if (xhr.status === 200) {
-						if (item.indexOf("data:image/gif;base64,") === -1) {
-						    resolve(xhr.getResponseHeader('Content-Length'));
-						} else {
-						    let base64str = item.substr(item.indexOf('data:image/gif;base64,')).substr(22);
-						    resolve(atob(base64str).length);
-						}
-					} else {
-						resolve("error");
-					}
-				}
-			};
-			
-		});	
+	getSizeFiles(item) {
+		return new WeightFindSize().findSizeFiles(item);
 	}
 
-	findScalePic(item) {
-		return new Promise(function(resolve) {
-			let img = document.createElement("img");
-  			img.src = item;
-  			try {
-	  			img.onload = () => {
-		  			resolve(img.width * img.height);
-		  		}
-		  	} catch (err) {
-		  		resolve("error");
-		  	}
-		});
+	getScalePic(item) {
+		return new ScaleFindSize().findSizeFiles(item);
 	}
 
 	createValidLink() {
